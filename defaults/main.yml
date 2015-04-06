@@ -1,0 +1,30 @@
+---
+# Use the FQDN value.
+postfix_hostname: "{{ ansible_hostname }}"
+
+# The destination address where root mails are forwarded.
+postfix_notify_email: no
+
+# Relay host. Use FQDN or hostname for SMTP.
+postfix_relayhost: ''
+
+# Disabling postfix service on boot usually mean that some other service (for
+# example, supervisor) controls the master postfix daemon and no need to start
+# it manually.
+postfix_enabled: yes
+
+# The list of credentials uses for SASL authentication.
+# postfix_sasl_credentials:
+#   - mail.example.com    user:password
+postfix_sasl_credentials: []
+
+# The network interface addresses that this mail system receives mail on.
+postfix_inet_interfaces: loopback-only
+
+# The Internet protocols Postfix will attempt to use when
+# making or accepting connections.
+postfix_inet_protocols: all
+
+# The list of "trusted" remote SMTP clients that have more privileges than
+# "strangers".
+postfix_mynetworks: 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128

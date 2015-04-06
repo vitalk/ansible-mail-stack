@@ -1,0 +1,60 @@
+---
+- name: Install postfix
+  apt: name=postfix state=installed
+  tags:
+    - postfix
+    - setup
+
+- name: Configure mail forwarding for root
+  template:
+    src=root-forward.j2
+    dest=/root/.forward
+    owner=root group=root mode=0644
+  when: postfix_notify_email is defined and postfix_notify_email
+  tags:
+    - postfix
+    - config
+    - setup
+
+- name: Configure default mail domain
+  lineinfile:
+    dest=/etc/mailname
+    line="{{ postfix_hostname }}"
+    state=present create=yes
+    owner=root group=root mode=0644
+  notify:
+    - restart postfix
+  tags:
+    - postfix
+    - config
+    - setup
+
+- name: Create configuration for Simple Authentication and Security Layer (SASL)
+  template:
+    src=sasl_passwd.j2
+    dest=/etc/postfix/sasl_passwd
+    owner=root group=root mode=0600
+  when: postfix_sasl_credentials
+  notify:
+    - postmap sasl
+    - restart postfix
+  tags:
+    - postfix
+    - config
+    - setup
+
+- name: Copy postfix configuration files
+  template:
+    src={{ item }}.j2
+    dest=/etc/postfix/{{ item }}
+    owner=root group=root mode=0644
+  with_items:
+    - main.cf
+    - master.cf
+  notify:
+    - restart postfix
+    - send test mail
+  tags:
+    - postfix
+    - config
+    - setup

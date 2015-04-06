@@ -1,0 +1,11 @@
+---
+- name: restart postfix
+  service: name=postfix state=restarted enabled={{ postfix_enabled }}
+  when: postfix_enabled
+
+- name: postmap sasl
+  shell: postmap /etc/postfix/sasl_passwd
+
+- name: send test mail
+  shell:
+    'echo "Subject: Ansible changes a postfix configuration on host {{ ansible_fqdn }}\nThis test message has been send at $(date -R)." | sendmail root'
